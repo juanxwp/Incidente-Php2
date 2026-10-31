@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PHP2Shell: el incidente de PHP de octubre de 2026 y qué hacer en Twinteach</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f7f7f4;--surface:#fff;--text:#1d1f23;--muted:#5d6370;--line:#e2e2dc;--accent:#5b4bdb;--danger:#c4281c;--dangerbg:#fdecea;--ok:#1a7f4b;--okbg:#e7f5ec;--warn:#9a6700;--warnbg:#fff4d6;--code:#f0f0ea;--codetext:#1d1f23}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#131418;--surface:#1c1e24;--text:#ececf0;--muted:#9aa0ad;--line:#2d3038;--accent:#9d92ff;--danger:#ff7b70;--dangerbg:#3a1b19;--ok:#58d492;--okbg:#14301f;--warn:#f2c14e;--warnbg:#38300f;--code:#0e0f12;--codetext:#e6e6ea}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#131418;--surface:#1c1e24;--text:#ececf0;--muted:#9aa0ad;--line:#2d3038;--accent:#9d92ff;--danger:#ff7b70;--dangerbg:#3a1b19;--ok:#58d492;--okbg:#14301f;--warn:#f2c14e;--warnbg:#38300f;--code:#0e0f12;--codetext:#e6e6ea}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}
+header.hero{padding:48px 0 28px;border-bottom:1px solid var(--line)}
+.tag{display:inline-block;background:var(--dangerbg);color:var(--danger);font-weight:600;font-size:13px;padding:4px 10px;border-radius:99px}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.15;margin:14px 0 10px;letter-spacing:-.02em}
+.lead{color:var(--muted);font-size:18px;margin:0}
+nav{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);border-bottom:1px solid var(--line);z-index:5}
+nav .wrap{display:flex;gap:6px;overflow-x:auto;padding:10px 20px;scrollbar-width:none}
+nav a{white-space:nowrap;color:var(--muted);text-decoration:none;font-size:14px;padding:6px 12px;border-radius:8px}
+nav a:hover{background:var(--surface);color:var(--text)}
+section{padding:36px 0 8px}
+h2{font-size:24px;margin:0 0 14px;letter-spacing:-.01em}
+h2 .n{color:var(--accent);margin-right:8px}
+h3{font-size:17px;margin:22px 0 8px}
+p{margin:0 0 14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+.alert{border-radius:12px;padding:14px 18px;margin:14px 0;border:1px solid transparent}
+.alert.d{background:var(--dangerbg);border-color:var(--danger)}
+.alert.w{background:var(--warnbg);border-color:var(--warn)}
+.alert.o{background:var(--okbg);border-color:var(--ok)}
+.alert strong:first-child{display:block;margin-bottom:2px}
+.scroll{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:15px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+pre{background:var(--code);color:var(--codetext);padding:14px 16px;border-radius:10px;overflow-x:auto;font-size:13.5px;line-height:1.5;margin:10px 0 16px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:var(--code);padding:1px 6px;border-radius:5px}
+pre code{background:none;padding:0}
+ul,ol{padding-left:22px;margin:0 0 14px}li{margin-bottom:6px}
+.tl{list-style:none;padding:0;border-left:2px solid var(--line);margin:14px 0 14px 6px}
+.tl li{position:relative;padding:0 0 14px 20px;margin:0}
+.tl li::before{content:"";position:absolute;left:-7px;top:8px;width:12px;height:12px;border-radius:50%;background:var(--accent)}
+.tl li.hot::before{background:var(--danger)}
+.tl b{display:block;font-size:14px;color:var(--muted)}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0}
+.stat div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.stat strong{display:block;font-size:26px;letter-spacing:-.02em}
+.stat span{color:var(--muted);font-size:14px}
+.check li{list-style:none;position:relative}
+.check{padding-left:4px}
+.check li::before{content:"☐";margin-right:8px;color:var(--accent)}
+footer{margin-top:40px;padding:24px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+footer a{color:var(--accent)}
+header.hero{background:radial-gradient(900px 300px at 10% -20%,color-mix(in srgb,var(--danger) 16%,transparent),transparent),radial-gradient(700px 260px at 100% 0,color-mix(in srgb,var(--accent) 18%,transparent),transparent);padding:56px 0 32px}
+h1{font-size:clamp(30px,6vw,48px);font-weight:800}
+#bar{position:fixed;top:env(safe-area-inset-top,0px);left:0;height:3px;width:0;background:var(--accent);z-index:20}
+nav a.on{background:var(--surface);color:var(--accent);font-weight:600;box-shadow:inset 0 0 0 1px var(--line)}
+.now{margin:22px 0 4px;background:var(--surface);border:1px solid var(--danger);border-left-width:5px;border-radius:12px;padding:16px 20px}
+.now strong{font-size:17px}.now ol{margin:8px 0 0}
+.hs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:18px}
+.hs div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.hs b{display:block;font-size:22px;letter-spacing:-.02em}.hs span{font-size:13px;color:var(--muted)}
+section{border-bottom:1px solid var(--line);padding-bottom:28px}
+h2{font-size:26px}
+.tl li.hot b{color:var(--danger)}
+tr:nth-child(even) td{background:color-mix(in srgb,var(--text) 3%,transparent)}
+.cw{position:relative}.cw pre{padding-right:78px}
+.copy{position:absolute;top:8px;right:8px;font:12px system-ui,sans-serif;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:7px;padding:4px 10px;cursor:pointer}
+.copy:hover{border-color:var(--accent);color:var(--accent)}
+.check li{cursor:pointer;padding:8px 12px;margin:0 0 6px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.check li.done{text-decoration:line-through;color:var(--muted)}
+.check li.done::before{content:"☑"}
+.chk-note{font-size:13px;color:var(--muted);margin:-6px 0 10px}
+@media print{nav,#bar,.copy{display:none}body{background:#fff;color:#000}}
+header.hero{background:#2d2766;border-bottom:4px solid var(--danger);padding:36px 0 28px}
+header.hero h1{color:#fff;margin:0}
+header.hero .lead{color:#dcd8ff}
+header.hero > .wrap > p{color:#cfcaff !important}
+.ht{display:flex;align-items:center;gap:16px;margin:14px 0 10px}
+.big{font-size:56px;line-height:1}
+.fig{overflow-x:auto;margin:16px 0}
+.fig svg{min-width:600px;width:100%;height:auto;display:block}
+.fig p{font-size:14px;color:var(--muted);margin:6px 0 0}
+svg text{fill:var(--text);font:600 14px system-ui,sans-serif}
+svg .s{font-weight:400;font-size:12.5px;fill:var(--muted)}
+svg .box{fill:var(--surface);stroke:var(--line);stroke-width:2}
+svg .bad{fill:var(--dangerbg);stroke:var(--danger);stroke-width:2}
+svg .good{fill:var(--okbg);stroke:var(--ok);stroke-width:2}
+svg .ln{stroke:var(--muted);stroke-width:2;fill:none}
+svg .ah{fill:var(--muted)}
+h2 .n{font-size:26px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0}
+summary{cursor:pointer;font-weight:600}
+details p{margin:8px 0 2px;color:var(--muted)}
+:root{--accent:#1565c0;--bg:#fafafa}
+body{font-family:Roboto,system-ui,sans-serif}
+header.hero{background:var(--surface);border-bottom:1px solid var(--line);padding:32px 0 24px}
+header.hero h1{color:var(--text);font-weight:700;letter-spacing:0;font-size:clamp(26px,5vw,38px)}
+header.hero .lead{color:var(--muted);font-size:17px}
+header.hero > .wrap > p{color:var(--muted) !important}
+.tag{background:none;border:1px solid var(--danger);border-radius:4px;font-weight:500}
+.tag::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--danger);margin-right:7px;animation:pulse 1.6s infinite}
+h2 .n{display:none}
+h2{font-size:24px;font-weight:700;display:inline-block;border-bottom:2px solid var(--accent);padding-bottom:4px}
+section{padding-top:32px}
+nav a{border-radius:0;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+nav a.on{background:none;box-shadow:none;color:var(--text);border-bottom-color:var(--accent)}
+.card,.alert,.scroll,.now,.hs div,.stat div,details,.check li,pre,.copy{border-radius:6px}
+.now{border-left-width:3px}
+.hs div{background:none;border:0;padding:0}
+.hs b{color:var(--accent)}
+tr:nth-child(even) td{background:none}
+.check li{transition:background .2s,color .2s}
+.check li:hover{background:var(--code)}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(196,40,28,.55)}100%{box-shadow:0 0 0 9px rgba(196,40,28,0)}}
+@keyframes glow{0%,100%{stroke-width:2}50%{stroke-width:4.5}}
+header.hero .tag,header.hero h1,header.hero .lead{animation:up .7s both}
+header.hero h1{animation-delay:.1s}header.hero .lead{animation-delay:.2s}
+.js section{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}
+.js section.in{opacity:1;transform:none}
+.js .tl li{opacity:0;transform:translateX(-14px);transition:opacity .5s,transform .5s}
+.js .tl.in li{opacity:1;transform:none}
+svg .bad{animation:glow 2s ease-in-out infinite}
+svg .dot{fill:var(--danger)}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}.js section,.js .tl li{opacity:1;transform:none}}
+@media print{.js section,.js .tl li{opacity:1 !important;transform:none !important}}
+:root{--bg:#e9f0fa}
+header.hero{background:#1e4f9c;border-bottom:0;color:#fff}
+header.hero h1{color:#fff}
+header.hero .lead{color:#dbe7fb}
+header.hero > .wrap > p{color:#c5d6f2 !important}
+header.hero .tag{color:#fff;border-color:#ffb4ab}
+.hs b{color:#ffd166}
+.hs span{color:#cfdcf5}
+nav{background:var(--surface)}
+section{--c:#1565c0;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:10px;padding:22px 24px 12px;margin:20px 0}
+
+h2{border-bottom-color:var(--c)}
+.tl{border-left-color:var(--c)}
+.tl li::before{background:var(--c)}
+.scroll,details,.check li,.stat div{background:color-mix(in srgb,var(--c) 6%,var(--surface))}
+th{background:color-mix(in srgb,var(--c) 16%,var(--surface));color:var(--text)}
+h3{color:var(--c)}
+footer{background:#1b2a41;color:#c9d3e3;border:0;border-radius:10px;padding:24px;margin-bottom:40px}
+footer a{color:#8ec5ff}
+@media (max-width:520px){section{padding:18px 16px 8px}}
+section{--c:#2a6bc4;border:0;border-top:3px solid var(--c);border-radius:6px;box-shadow:0 2px 8px rgba(20,33,61,.1)}
+h2{display:block;border-bottom:0;border-left:5px solid var(--c);padding:2px 0 2px 12px;font-size:23px}
+h3{color:var(--text);font-size:17px;border-bottom:1px dashed var(--line);padding-bottom:4px}
+p{max-width:72ch}
+.alert{border-width:0 0 0 4px;border-radius:4px}
+.scroll,details,.check li,.stat div,pre,.now,.card{border-radius:4px}
+.stat strong{color:var(--c)}
+.stat div{transition:transform .2s}.stat div:hover{transform:translateY(-3px)}
+#versiones td:last-child strong{background:color-mix(in srgb,var(--ok) 22%,transparent);color:var(--ok);padding:1px 8px;border-radius:3px}
+nav{background:#14213d;border:0}
+nav a{color:#c8d3ea}
+nav a:hover{background:rgba(255,255,255,.08);color:#fff}
+nav a.on{color:#fff;border-bottom-color:#ffd166}
+.brand{color:#fff;font-weight:700;padding:8px 14px 8px 0;margin-right:6px;border-right:1px solid rgba(255,255,255,.25);white-space:nowrap}
+.top{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:42px;height:42px;border:0;border-radius:50%;background:#1e4f9c;color:#fff;font-size:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3);opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .3s,transform .3s,background .2s;z-index:9}
+.top.show{opacity:1;pointer-events:auto;transform:none}
+.top:hover{background:#2a6bc4}
+@media print{.top{display:none}}
+header.hero{position:relative;overflow:hidden;background-image:radial-gradient(rgba(255,255,255,.1) 1.5px,transparent 1.5px);background-size:20px 20px}
+header.hero::after{content:"PHP";position:absolute;right:-8px;bottom:-30px;font:900 150px/1 Roboto,sans-serif;color:rgba(255,255,255,.07);pointer-events:none}
+header.hero .wrap{position:relative;z-index:1}
+.hs div{background:rgba(255,255,255,.1);border-left:3px solid #ffd166;padding:10px 14px;border-radius:3px}
+body{counter-reset:s}
+section h2::before{counter-increment:s;content:"0" counter(s);background:var(--c);color:#fff;font-size:13px;font-weight:500;padding:2px 7px;border-radius:3px;margin-right:10px;vertical-align:middle}
+.tl b{color:var(--c);font-weight:700}
+#versiones td:nth-child(2){color:var(--danger);font-weight:500}
+tr:hover td{background:color-mix(in srgb,var(--c) 9%,transparent)}
+.cw{margin-top:10px}
+.cw::before{content:"";display:block;height:24px;border-radius:4px 4px 0 0;background:radial-gradient(circle at 14px 12px,#ff5f56 4px,transparent 5px),radial-gradient(circle at 30px 12px,#ffbd2e 4px,transparent 5px),radial-gradient(circle at 46px 12px,#27c93f 4px,transparent 5px),#2a2d36}
+.cw pre{margin:0 0 16px;border-radius:0 0 4px 4px}
+.copy{top:32px}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+<div class="ht"><h1>PHP2Shell: el incidente de PHP de octubre de 2026</h1></div>
+<p class="lead">Resumen de lo que ha pasado con PHP este mes y de lo que tenemos que revisar en Twinteach (Angular + Laravel). En corto: hay dos fallos graves en PHP que permiten a alguien ejecutar código en un servidor sin tener ni cuenta.</p>
+<div class="hs"><div><b>21 oct</b><span>parche de emergencia</span></div><div><b class="cnt" data-to="9.2" data-dec="1">9,2</b><span>CVSS v4.0, sin login</span></div><div><b class="cnt" data-to="22.6" data-dec="1" data-suf=" M">22,6 M</b><span>instancias expuestas</span></div><div><b>26 oct</b><span>añadido a CISA KEV</span></div></div>
+
+</div></header>
+
+<div id="bar"></div>
+<nav><div class="wrap"><span class="brand">PHP2Shell</span>
+<a href="#cuando">Cuándo</a><a href="#que">Qué es</a><a href="#versiones">Versiones</a><a href="#soluciones">Soluciones</a><a href="#twinteach">Twinteach</a><a href="#deteccion">¿Me atacaron?</a><a href="#extra">Más info</a><a href="#conclusiones">Conclusiones</a>
+</div></nav>
+
+<main class="wrap">
+
+<section id="cuando">
+<h2><span class="n">🕒</span>¿Por qué se descubrió y cuándo ocurrió?</h2>
+<p>Los fallos se encontraron con <strong>auditoría de código asistida por IA</strong>. Wiz Research afirma haber hallado el primero el 19 de agosto de 2026 con herramientas de IA; otras fuentes atribuyen el hallazgo a Calif y OpenAI (programa “Patch the Planet”), que habrían avisado a PHP el 11 de agosto. Es un error que llevaba más de una década en el código.</p>
+<ul class="tl">
+<li><b>11 ago 2026</b>Calif y OpenAI informan de la causa raíz al equipo de seguridad de PHP.</li>
+<li><b>19–24 ago 2026</b>Wiz descubre el primer fallo, demuestra RCE contra Drupal y WordPress y lo notifica a PHP (24 ago).</li>
+<li><b>21 sep 2026</b>PHP reconoce los informes y empieza a preparar un parche coordinado.</li>
+<li class="hot"><b>17 oct 2026</b>La red de honeypots de Amazon registra el primer intento de explotación, cuatro días antes de la divulgación.</li>
+<li class="hot"><b>20 oct 2026</b>Se filtra un mensaje en Hacker News con los identificadores de los CVE y la fecha de divulgación.</li>
+<li class="hot"><b>21 oct 2026</b>PHP publica una versión de seguridad de emergencia (14:00 UTC). Cloudflare detecta ataques y despliega reglas WAF.</li>
+<li><b>23 oct 2026</b>PHP avisa de un tercer fallo distinto, <code>CVE-2026-115560</code>, aún sin parche.</li>
+<li><b>24 oct 2026</b>Un informe público con honeypots muestra shells funcionales en servidores PHP 8.4.26 con Apache + mod_php.</li>
+<li class="hot"><b>26 oct 2026</b>CISA añade CVE-2026-109618 y CVE-2026-109619 al catálogo de vulnerabilidades explotadas (KEV).</li>
+</ul>
+</section>
+
+<section id="que">
+<h2><span class="n">🔍</span>¿En qué consiste?</h2>
+<p>No es un fallo de WordPress, Laravel o Drupal: está en el <strong>runtime de PHP</strong>. Por eso una aplicación perfectamente actualizada puede seguir siendo vulnerable si el PHP que la ejecuta no lo está. Ambos son fallos de memoria (<em>use-after-free</em>, CWE-416) con puntuación <strong>CVSS v4.0 de 9,2</strong>.</p>
+<div class="scroll"><table>
+<tr><th>CVE</th><th>Qué ocurre</th></tr>
+<tr><td><code>CVE-2026-109618</code></td><td>Al quedarse sin memoria, PHP interrumpe la petición con datos internos a medio inicializar; la limpieza posterior los trata como válidos. Permite RCE de forma fiable provocando errores de memoria.</td></tr>
+<tr><td><code>CVE-2026-109619</code></td><td>Estado interno de una petición sobrevive tras liberarse su memoria; una petición posterior del mismo worker lo usa. Permite ejecución de código.</td></tr>
+<tr><td><code>CVE-2026-115560</code></td><td><strong>Distinto y sin parche.</strong> RCE vinculado a la función de progreso de subida de sesión (<em>session upload progress</em>) cuando la aplicación cambia en tiempo de ejecución el <code>session.serialize_handler</code> a <code>php</code>. Requiere una configuración poco habitual.</td></tr>
+</table></div>
+<p>Wiz también demostró que se puede <strong>leer memoria de otros procesos PHP</strong> sin ejecutar código, lo que puede exponer contraseñas, tokens de sesión, claves de API y certificados.</p>
+<div class="stat">
+<div><strong>22,6 M</strong><span>instancias expuestas según Palo Alto (Cortex Xpanse)</span></div>
+<div><strong>9,2</strong><span>CVSS v4.0, sin autenticación</span></div>
+<div><strong>+10 años</strong><span>de código vulnerable</span></div>
+</div>
+<div class="fig"><svg viewBox="0 0 760 140" role="img" aria-label="Cómo funciona el ataque en cuatro pasos"><defs><marker id="ar1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10z"/></marker></defs>
+<rect class="box" x="10" y="25" width="170" height="80" rx="12"/><text x="95" y="60" text-anchor="middle">Atacante</text><text class="s" x="95" y="82" text-anchor="middle">sin cuenta ni login</text>
+<rect class="box" x="200" y="25" width="170" height="80" rx="12"/><text x="285" y="60" text-anchor="middle">Petición HTTP</text><text class="s" x="285" y="82" text-anchor="middle">rara (multipart)</text>
+<rect class="bad" x="390" y="25" width="170" height="80" rx="12"/><text x="475" y="60" text-anchor="middle">PHP falla</text><text class="s" x="475" y="82" text-anchor="middle">memoria corrupta</text>
+<rect class="bad" x="580" y="25" width="170" height="80" rx="12"/><text x="665" y="60" text-anchor="middle">Ejecuta código</text><text class="s" x="665" y="82" text-anchor="middle">en tu servidor</text>
+<path class="ln" d="M182,65 H196" marker-end="url(#ar1)"/><path class="ln" d="M372,65 H386" marker-end="url(#ar1)"/><path class="ln" d="M562,65 H576" marker-end="url(#ar1)"/><circle class="dot" r="6"><animateMotion dur="4s" repeatCount="indefinite" path="M95,65 H665"/></circle></svg><p>Esquema simplificado del ataque (RCE = ejecución remota de código).</p></div>
+<div class="alert w"><strong>Mayor riesgo: Apache con mod_php</strong>PHP considera que ahí es peor, porque el exploit actúa antes de que se ejecute código de la aplicación. Pero PHP-FPM, php-cgi, FrankenPHP y LiteSpeed también están en riesgo.</div>
+</section>
+
+<section id="versiones">
+<h2><span class="n">📦</span>¿A qué versiones afecta?</h2>
+<div class="scroll"><table>
+<tr><th>Rama</th><th>Estado</th><th>Versión segura</th></tr>
+<tr><td>8.5</td><td>Vulnerable hasta 8.5.11</td><td><strong>8.5.12</strong></td></tr>
+<tr><td>8.4</td><td>Vulnerable hasta 8.4.26</td><td><strong>8.4.27</strong></td></tr>
+<tr><td>8.3</td><td>Vulnerable hasta 8.3.35</td><td><strong>8.3.36</strong></td></tr>
+<tr><td>8.2</td><td>Vulnerable hasta 8.2.34</td><td><strong>8.2.35</strong></td></tr>
+<tr><td>8.1 y anteriores (desde 5.4)</td><td>Vulnerables y <strong>sin soporte oficial</strong></td><td>No hay parche oficial: migrar a 8.2+</td></tr>
+</table></div>
+<p>Las distribuciones Linux suelen <em>retroportar</em> el parche sin cambiar el número de versión, así que un “8.3.30” de Debian o Ubuntu puede estar corregido. Para CVE-2026-115560 aún no se han confirmado las ramas afectadas.</p>
+</section>
+
+<section id="soluciones">
+<h2><span class="n">🛠️</span>¿Qué soluciones existen?</h2>
+<h3>Solución definitiva (109618 y 109619)</h3>
+<p>Actualizar PHP a 8.5.12, 8.4.27, 8.3.36 u 8.2.35 (o al paquete corregido de tu distribución) y <strong>reiniciar</strong> PHP-FPM / Apache para que los workers carguen el binario nuevo.</p>
+<h3>Mitigación temporal (y la única para 115560)</h3>
+<p>Desactivar el progreso de subida de sesión. Debe fijarse a nivel de servidor, no con <code>ini_set()</code>:</p>
+<pre><code>; php.ini
+session.upload_progress.enabled = 0
+
+; pool de PHP-FPM
+php_admin_flag[session.upload_progress.enabled] = off
+
+; Apache con mod_php
+php_admin_flag session.upload_progress.enabled off</code></pre>
+<div class="alert o"><strong>Truco:</strong>si ya desactivasteis esto el 21 de octubre, también quedáis cubiertos frente al CVE-2026-115560 hasta que salga el siguiente parche. Cuando salga, a actualizar otra vez.</div>
+<h3>Otras capas</h3>
+<ul>
+<li><strong>WAF</strong>: Cloudflare y otros proveedores desplegaron reglas para los vectores conocidos. Ayudan, pero no sustituyen al parche.</li>
+<li><strong>Contenedores</strong>: reconstruir las imágenes (<code>docker pull</code> / <code>docker build --no-cache</code>) con la etiqueta parcheada.</li>
+<li><strong>Parches no oficiales</strong> para PHP antiguos existen en GitHub y Docker Hub, pero sus propios autores avisan de que no son un arreglo completo. Solo como medida de emergencia.</li>
+<li><strong>Windows</strong>: PHP publicó el 26 de octubre builds actualizados (8.5.12-1, 8.4.27-1, 8.3.36-1, 8.2.35-1) que corrigen además un fallo de la librería Brotli (CVE-2026-111497).</li>
+</ul>
+</section>
+
+<section id="twinteach">
+<h2><span class="n">🎓</span>Twinteach: cómo comprobar que está protegido</h2>
+<div class="alert d"><strong>Ojo, el frontend no se toca</strong>Angular corre en el navegador del usuario y no usa PHP, así que por esto no hay que parchearlo. Lo que hay que mirar es el servidor donde está Laravel y cualquier otra cosa en PHP que tengamos montada (paneles, phpMyAdmin, WordPress, el hosting...).</div>
+
+<div class="fig"><svg viewBox="0 0 760 190" role="img" aria-label="Arquitectura de Twinteach y dónde está el fallo"><defs><marker id="ar2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10z"/></marker></defs>
+<rect class="good" x="10" y="30" width="170" height="80" rx="12"/><text x="95" y="65" text-anchor="middle">Navegador</text><text class="s" x="95" y="87" text-anchor="middle">Angular</text>
+<rect class="box" x="200" y="30" width="170" height="80" rx="12"/><text x="285" y="65" text-anchor="middle">Servidor web</text><text class="s" x="285" y="87" text-anchor="middle">Nginx / Apache</text>
+<rect class="bad" x="390" y="30" width="170" height="80" rx="12"/><text x="475" y="65" text-anchor="middle">PHP + Laravel</text><text class="s" x="475" y="87" text-anchor="middle">¡el fallo está aquí!</text>
+<rect class="box" x="580" y="30" width="170" height="80" rx="12"/><text x="665" y="65" text-anchor="middle">Base de datos</text><text class="s" x="665" y="87" text-anchor="middle">datos de alumnos y docentes</text>
+<path class="ln" d="M182,70 H196" marker-end="url(#ar2)"/><path class="ln" d="M372,70 H386" marker-end="url(#ar2)"/><path class="ln" d="M562,70 H576" marker-end="url(#ar2)"/>
+<text class="s" x="95" y="140" text-anchor="middle">No usa PHP</text><text class="s" x="475" y="140" text-anchor="middle">Actualizar PHP</text><text class="s" x="475" y="160" text-anchor="middle">y reiniciar</text><circle class="dot" r="6"><animateMotion dur="4s" repeatCount="indefinite" path="M95,70 H665"/></circle></svg><p>Esquema simplificado de Twinteach (puede variar según vuestro despliegue).</p></div>
+<h3>Paso 1. Inventario de todos los PHP</h3>
+<p>Localiza cada entorno donde corre PHP: producción, staging, contenedores, CI/CD, servidores de colas y workers. Cada uno puede tener una versión distinta.</p>
+<pre><code>php -v                      # CLI (puede no coincidir con FPM)
+php-fpm -v  ||  php-fpm8.3 -v
+apachectl -M | grep php     # ¿mod_php cargado?
+docker ps --format '{{.Names}} {{.Image}}'
+docker exec &lt;contenedor&gt; php -v</code></pre>
+
+<h3>Paso 2. Comparar con las versiones seguras</h3>
+<p>Si es 8.2.35, 8.3.36, 8.4.27, 8.5.12 o superior, está parcheado. Si es otra, comprueba si tu distribución retroportó el parche:</p>
+<pre><code># Debian / Ubuntu
+apt changelog php8.3-fpm | grep -i "CVE-2026-1096"
+# RHEL / Alma / Rocky
+rpm -q --changelog php-fpm | grep -i "CVE-2026-1096"</code></pre>
+<p>Si usas hosting compartido o gestionado, pregunta al proveedor por escrito si ha aplicado el parche.</p>
+<h3>Ejemplo: cómo leer el resultado</h3>
+<pre><code>$ php -v
+PHP 8.3.30 (fpm-fcgi) ...   -> es menor que 8.3.36: actualizar, o mirar el changelog por si hay retroporte
+PHP 8.4.27 (cli) ...        -> ya incluye el parche, solo falta reiniciar FPM
+PHP 8.1.31 (cli) ...        -> sin soporte oficial: hay que migrar a 8.2 o superior</code></pre>
+<p>Fíjate en que <code>php -v</code> por consola puede dar una versión y el PHP-FPM que sirve la web otra distinta. Hay que comprobar los dos.</p>
+
+<h3>Paso 3. Revisar la compatibilidad con Laravel</h3>
+<ul>
+<li>En <code>composer.json</code> mira el requisito <code>"php"</code> y ejecuta <code>composer check-platform-reqs</code> tras actualizar.</li>
+<li>Si el backend está en PHP 8.1 o inferior, no hay parche oficial: hay que migrar a 8.2+, lo que puede exigir subir la versión de Laravel. Verifica el requisito mínimo de PHP de tu versión en la documentación de Laravel.</li>
+<li>Prueba en staging (<code>php artisan test</code>) antes de pasar a producción, y reinicia FPM, Octane, queue workers y Horizon: los procesos antiguos siguen en memoria con el PHP viejo.</li>
+</ul>
+
+<h3>Paso 4. Aplicar y verificar la mitigación de sesión</h3>
+<pre><code>php -i | grep session.upload_progress.enabled
+# En FPM, comprobarlo vía web (no solo por CLI):
+# crea temporalmente un script con phpinfo() protegido y revisa el valor; bórralo después.
+
+grep -rn "serialize_handler" app/ config/ bootstrap/ public/</code></pre>
+<p>Laravel gestiona sus sesiones con sus propios drivers (archivo, base de datos, Redis, cookie), por lo que normalmente no cae en el escenario concreto de CVE-2026-115560. No lo des por hecho: la mitigación cuesta una línea y el fallo está en PHP, no en Laravel.</p>
+
+<h3>Paso 5. Reducir daño potencial</h3>
+<ul>
+<li>PHP-FPM y el servidor web con el usuario de menor privilegio posible.</li>
+<li>Evitar que el proceso web pueda escribir en directorios ejecutables; en Laravel, solo <code>storage/</code> y <code>bootstrap/cache/</code>.</li>
+<li>Poner un WAF delante del backend y limitar el tamaño de peticiones multipart donde no se suban archivos.</li>
+<li>Si no necesitas mod_php, usar PHP-FPM.</li>
+</ul>
+
+<h3>Lista de verificación</h3>
+<p class="chk-note">Pulsa cada punto para marcarlo como hecho.</p>
+<ul class="check">
+<li>Inventario completo de entornos PHP hecho</li>
+<li>Todos en versión corregida (o retroporte confirmado)</li>
+<li>PHP-FPM / Apache / Octane / workers reiniciados</li>
+<li><code>session.upload_progress.enabled = 0</code> aplicado a nivel de servidor</li>
+<li>Imágenes Docker reconstruidas y desplegadas</li>
+<li>Revisión de logs desde el 17 de octubre (sección siguiente)</li>
+<li>Secretos rotados si hay sospecha (sección siguiente)</li>
+<li>Suscripción a avisos de PHP para la próxima versión que corrija CVE-2026-115560</li>
+</ul>
+</section>
+
+<section id="deteccion">
+<h2><span class="n">🕵️</span>¿Han explotado la vulnerabilidad contra nuestro sistema?</h2>
+<div class="alert w"><strong>Esto no es tan fácil de comprobar</strong>El ataque pasa dentro de PHP, y por eso en los logs de Laravel casi no se ve nada. Tampoco hay todavía una lista fiable de “huellas” (IOCs) publicada, así que lo que toca es buscar comportamientos raros.</div>
+<p><strong>Ventana de búsqueda recomendada:</strong> desde el 17 de octubre de 2026, el primer intento registrado.</p>
+<h3>Señales a buscar</h3>
+<ul>
+<li><strong>Secuencia típica</strong>: una petición <code>POST</code> con respuesta 500, error de agotamiento de memoria o corrupción de heap en el log de PHP, y caída del worker de Apache/FPM que la procesaba.</li>
+<li><strong>Peticiones multipart inusuales</strong> seguidas de errores de memory limit o de 500 repetidos.</li>
+<li><strong>Cookies <code>PHPSESSID</code> de respuesta</strong> anormalmente grandes o malformadas (vía de fuga de memoria).</li>
+<li><strong>Reinicios inexplicables</strong> de workers PHP.</li>
+<li><strong>Procesos hijo sospechosos</strong> de PHP/Apache (<code>sh</code>, <code>bash</code>, <code>curl</code>, <code>wget</code>) y conexiones salientes nuevas.</li>
+<li><strong>Peticiones con un campo <code>PHP_SESSION_UPLOAD_PROGRESS</code></strong> (en los logs del WAF o del proxy, no en el access log normal). Se han visto sondas con una marca “p2s-rider”.</li>
+<li>Archivos nuevos o modificados en <code>storage/</code>, <code>public/</code>, <code>bootstrap/cache/</code> o <code>/tmp</code>, y tareas cron o claves SSH nuevas.</li>
+</ul>
+<pre><code># Picos de 500 en POST (nginx)
+awk '$6=="\"POST" &amp;&amp; $9==500' /var/log/nginx/access.log | wc -l
+
+# Errores de memoria / heap en PHP y workers que mueren
+grep -Ei "allowed memory size|heap corruption|zend_mm|out of memory" /var/log/php*/*.log /var/log/apache2/error.log
+grep -Ei "exited on signal|SIGSEGV|SIGABRT" /var/log/php*-fpm.log /var/log/apache2/error.log
+dmesg -T | grep -Ei "php|apache2.*segfault"
+
+# Ficheros PHP modificados recientemente
+find /var/www -name "*.php" -mtime -12 -ls
+find /var/www/*/storage /var/www/*/public -type f -newermt 2026-10-17 -ls</code></pre>
+<p>Ajusta rutas a tu entorno. Una sola señal no prueba compromiso; un conjunto coherente sí merece investigación.</p>
+<h3>Si hay indicios</h3>
+<ol>
+<li>Aislar el servidor y conservar logs y una copia forense antes de reiniciar.</li>
+<li>Considerar <strong>comprometidos todos los secretos presentes en memoria o en <code>.env</code></strong>: <code>APP_KEY</code>, contraseñas de BD, claves de API, tokens de correo y de terceros, claves JWT/Sanctum/Passport.</li>
+<li>Invalidar sesiones activas y forzar el cierre de sesión de usuarios.</li>
+<li>Reconstruir desde una imagen limpia en lugar de “limpiar” el servidor.</li>
+<li>Evaluar obligaciones de notificación (RGPD) si hubo acceso a datos personales; en Twinteach pueden incluir alumnado y docentes.</li>
+</ol>
+<p>Aunque no se detecte nada, la fuga de memoria no deja rastro de ejecución de código: si el sistema estuvo expuesto sin parchear, valora rotar los secretos de todos modos.</p>
+</section>
+
+<section id="extra">
+<h2><span class="n">💡</span>Otros aspectos importantes</h2>
+<ul>
+<li><strong>Hay explotación real, pero con matices.</strong> Cloudflare, watchTowr, Hadrian y Amazon reportan intentos; un honeypot público obtuvo shells en una configuración favorable al atacante. Wiz, en su propia telemetría, indicaba que no había visto una explotación completa con éxito. CISA lo ha incluido en el catálogo KEV, lo que implica explotación confirmada.</li>
+<li><strong>Divulgación filtrada.</strong> La filtración del 20 de octubre acortó el margen para parchear.</li>
+<li><strong>Exploits de IA.</strong> Se han observado atacantes usando plataformas de IA agéntica en acciones posteriores a la intrusión, y escaneos masivos atribuidos de forma sospechosa a actores norteamericanos y norcoreanos; hay incertidumbre sobre la atribución.</li>
+<li><strong>Productos de terceros.</strong> Cisco, Palo Alto, Splunk y otros publicaron avisos propios: revisa también appliances y paneles que incluyan PHP.</li>
+<li><strong>Parcheo en marcha.</strong> Wiz midió una caída aproximada del 67 % en máquinas expuestas, aunque quedan millones sin corregir.</li>
+<li><strong>Todavía no ha terminado.</strong> El CVE-2026-115560 sigue sin parche; PHP lo arreglará en su próxima versión normal, así que hay que estar atentos a php.net.</li>
+</ul>
+<h3>Mini glosario</h3>
+<details><summary>CVE</summary><p>Código público que identifica una vulnerabilidad concreta, por ejemplo CVE-2026-109618.</p></details>
+<details><summary>CVSS</summary><p>Nota de gravedad de 0 a 10. Aquí es 9,2, o sea crítica.</p></details>
+<details><summary>RCE (ejecución remota de código)</summary><p>Un atacante consigue que el servidor ejecute órdenes suyas desde fuera.</p></details>
+<details><summary>Use-after-free</summary><p>Error de memoria: el programa sigue usando un dato que ya liberó, y eso puede manipularse.</p></details>
+<details><summary>WAF</summary><p>Cortafuegos de aplicaciones web: filtra peticiones sospechosas antes de que lleguen a tu servidor.</p></details>
+<details><summary>KEV (CISA)</summary><p>Lista oficial de EE. UU. de vulnerabilidades que ya se están explotando.</p></details>
+</section>
+
+<section id="conclusiones">
+<h2>Conclusiones</h2>
+<ol>
+<li>El problema está en PHP, no en nuestro código. Aunque Laravel esté al día, hay que parchear el PHP del servidor.</li>
+<li>La solución real es actualizar a 8.2.35, 8.3.36, 8.4.27 u 8.5.12 y reiniciar PHP-FPM, Apache y los workers. Si seguimos en PHP 8.1 o menos, hay que migrar.</li>
+<li>Mientras se actualiza, desactivar <code>session.upload_progress.enabled</code> reduce el riesgo, y es la única medida disponible para el CVE-2026-115560.</li>
+<li>Angular no se ve afectado, pero el backend Laravel sí, si su PHP es vulnerable.</li>
+<li>Para saber si nos han atacado hay que revisar los logs desde el 17 de octubre. Si hay dudas, conviene rotar claves y contraseñas.</li>
+<li>Lección: llevar un inventario de versiones, actualizar a menudo y no dejar PHP sin soporte en producción.</li>
+</ol>
+<p><strong>En resumen:</strong> actualizar PHP, reiniciar, desactivar la opción de sesión y revisar los logs.</p>
+</section>
+
+<footer>
+<strong>Fuentes consultadas</strong> (todas de octubre de 2026):
+<ul>
+<li><a href="https://www.wiz.io/blog/php2shell-php-rce">Wiz Research: PHP2Shell (análisis técnico)</a> y <a href="https://www.wiz.io/blog/php2shell-exploitation-so-far">seguimiento de explotación</a></li>
+<li><a href="https://www.cisa.gov/news-events/alerts/2026/10/21/critical-vulnerabilities-php-require-immediate-patching">CISA: alerta y catálogo KEV</a></li>
+<li><a href="https://www.cyber.gc.ca/en/alerts-advisories/al26-026-critical-vulnerabilities-impacting-php-cve-2026-109618-cve-2026-109619">Canadian Centre for Cyber Security: AL26-026</a></li>
+<li><a href="https://unit42.paloaltonetworks.com/cve-2026-109618-cve-2026-109619/">Unit 42 (Palo Alto Networks)</a> · <a href="https://www.rapid7.com/blog/post/etr-cve-2026-109618-and-cve-2026-109619-critical-unauthenticated-remote-code-execution-in-php/">Rapid7</a> · <a href="https://www.tenable.com/blog/php2shell-cve-2026-109618-cve-2026-109619-frequently-asked-questions-about-critical-php-remote">Tenable</a></li>
+<li><a href="https://serversideup.net/blog/php-cve-2026-115560-session-upload-progress/">CVE-2026-115560: mitigación</a> · <a href="https://www.getastra.com/blog/security-advisory/cve-2026-115560/">Astra Security</a></li>
+<li><a href="https://thehackernews.com/2026/10/php2shell-two-unpatched-critical-php.html">The Hacker News</a></li>
+</ul>
+<p>Los comandos y rutas son orientativos y deben adaptarse a vuestra infraestructura. Esta página es un resumen informativo, no sustituye el análisis de vuestro equipo de seguridad.</p>
+<p>Trabajo elaborado con ayuda de IA (Claude), algo permitido en esta entrega. La información sale de las fuentes enlazadas y conviene contrastarla antes de tocar producción.</p>
+</footer>
+</main>
+<button class="top" id="top" type="button" aria-label="Volver arriba">↑</button>
+<script>
+(function(){
+var bar=document.getElementById('bar');
+function prog(){var h=document.documentElement,m=h.scrollHeight-h.clientHeight;bar.style.width=(m>0?h.scrollTop/m*100:0)+'%'}
+addEventListener('scroll',prog,{passive:true});prog();
+document.querySelectorAll('pre').forEach(function(pre){
+var w=document.createElement('div');w.className='cw';pre.parentNode.insertBefore(w,pre);w.appendChild(pre);
+var b=document.createElement('button');b.className='copy';b.type='button';b.textContent='Copiar';w.appendChild(b);
+b.onclick=function(){var t=pre.innerText;
+function ok(){b.textContent='Copiado';setTimeout(function(){b.textContent='Copiar'},1500)}
+try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}
+function fb(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){}a.remove()}}});
+var links=document.querySelectorAll('nav a');
+if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id)})}})},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('section').forEach(function(s){io.observe(s)})}
+var items=document.querySelectorAll('.check li'),saved=[];
+try{saved=JSON.parse(localStorage.getItem('p2s-chk')||'[]')}catch(e){}
+items.forEach(function(li,i){if(saved.indexOf(i)>-1)li.classList.add('done');
+li.onclick=function(){li.classList.toggle('done');var d=[];items.forEach(function(x,j){if(x.classList.contains('done'))d.push(j)});try{localStorage.setItem('p2s-chk',JSON.stringify(d))}catch(e){}}});
+})();
+</script>
+<script>
+(function(){
+var d=document;d.documentElement.classList.add('js');
+var els=d.querySelectorAll('section,.tl');
+if('IntersectionObserver' in window){
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.06});
+els.forEach(function(s){io.observe(s)});
+}else{els.forEach(function(s){s.classList.add('in')})}
+d.querySelectorAll('.tl').forEach(function(t){t.querySelectorAll('li').forEach(function(li,i){li.style.transitionDelay=(i*0.1)+'s'})});
+d.querySelectorAll('.cnt').forEach(function(el){var to=parseFloat(el.dataset.to),dec=+el.dataset.dec||0,suf=el.dataset.suf||'',t0=null;
+function f(ts){if(!t0)t0=ts;var p=Math.min((ts-t0)/1200,1);el.textContent=(to*p).toFixed(dec).replace('.',',')+suf;if(p<1)requestAnimationFrame(f)}
+requestAnimationFrame(f)});
+var tp=d.getElementById('top');
+tp.onclick=function(){scrollTo({top:0,behavior:'smooth'})};
+addEventListener('scroll',function(){tp.classList.toggle('show',window.scrollY>500)},{passive:true});
+})();
+</script>
+</body>
+</html>
